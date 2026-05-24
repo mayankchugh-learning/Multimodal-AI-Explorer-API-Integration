@@ -1,0 +1,13 @@
+# Optional — for students running LangChain examples from the Learn panels.
+# pip install -r requirements-langchain.txt
+
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-anthropic>=0.2.0
+langchain-google-genai>=2.0.0
+langchain-groq>=0.2.0
+langchain-ollama>=0.2.0
+langchain-huggingface>=0.1.0
+langchain-community>=0.3.0
+huggingface-hub>=0.26.0
