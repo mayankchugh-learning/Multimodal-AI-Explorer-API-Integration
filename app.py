@@ -30,6 +30,7 @@ from src.services import (
     generate_video_placeholder,
     transcribe_audio,
 )
+from src.services.connectivity import test_groq
 from src.types import GenerationOptions
 
 st.set_page_config(
@@ -54,6 +55,14 @@ st.markdown(
     '<p class="sub-header">OpenAI · Gemini · Groq · OpenRouter · Anthropic · Hugging Face · Ollama</p>',
     unsafe_allow_html=True,
 )
+
+
+def _show_error(exc: Exception) -> None:
+    msg = str(exc)
+    if "**" in msg:
+        st.markdown(msg)
+    else:
+        st.error(msg)
 
 
 def _byok_overrides() -> dict[str, str | None]:
@@ -182,6 +191,19 @@ with st.sidebar:
 
     provider = st.selectbox("Provider", provider_options, key="provider")
 
+    if provider == "groq" and keys.has_groq():
+        if st.button("Test Groq connection", key="test_groq_conn", width="stretch"):
+            with st.spinner("Calling Groq API..."):
+                ok, msg = test_groq(keys)
+            if ok:
+                st.success(msg)
+            else:
+                st.error(msg)
+                st.caption(
+                    "403 often means your network blocks api.groq.com. Try hotspot, "
+                    "disable VPN, or use OpenRouter instead."
+                )
+
     st.divider()
     render_sidebar_modality_picker(keys, provider)
 
@@ -248,7 +270,7 @@ with tab_text:
                     st.success(f"Model: `{model}` · temp={gen_options.temperature}")
                     st.markdown(result)
                 except Exception as exc:
-                    st.error(str(exc))
+                    _show_error(exc)
 
     st.divider()
     render_modality_recommendations("text_to_image", keys, provider, key_prefix="tab_t2i")

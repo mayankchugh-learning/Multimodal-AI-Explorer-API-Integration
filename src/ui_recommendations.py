@@ -26,6 +26,7 @@ def render_modality_recommendations(
     *,
     key_prefix: str = "main",
     show_apply_button: bool = True,
+    show_provider_table: bool = True,
 ) -> None:
     modality = get_modality(modality_id)
     best = best_for_modality(modality_id, keys)
@@ -51,40 +52,41 @@ def render_modality_recommendations(
         elif match and match.rating == "good":
             st.info(f"**{match.provider_label}** is a good fit ({RATING_LABEL[match.rating]}).")
 
-    with st.expander(
-        f"📋 All providers & models — {modality.label}",
-        expanded=False,
-    ):
-        st.caption(modality.description)
-        rows = []
-        for m in modality.models:
-            rows.append(
-                {
-                    "Rating": RATING_LABEL[m.rating],
-                    "Provider": m.provider_label,
-                    "Model": m.model,
-                    "Key ready": "✅" if _provider_ready(m.provider, keys) else "❌",
-                    "Notes": m.note,
-                }
-            )
-        st.dataframe(rows, width="stretch", hide_index=True)
+    if show_provider_table:
+        with st.expander(
+            f"📋 All providers & models — {modality.label}",
+            expanded=False,
+        ):
+            st.caption(modality.description)
+            rows = []
+            for m in modality.models:
+                rows.append(
+                    {
+                        "Rating": RATING_LABEL[m.rating],
+                        "Provider": m.provider_label,
+                        "Model": m.model,
+                        "Key ready": "✅" if _provider_ready(m.provider, keys) else "❌",
+                        "Notes": m.note,
+                    }
+                )
+            st.dataframe(rows, width="stretch", hide_index=True)
 
-        if show_apply_button and modality.best_options():
-            st.markdown("**Apply a ⭐ best pick**")
-            best_opts = modality.best_options()
-            cols = st.columns(min(len(best_opts), 3))
-            for i, rec in enumerate(best_opts):
-                with cols[i % len(cols)]:
-                    btn_key = f"{key_prefix}_apply_{modality_id}_{rec.provider}_{i}"
-                    if st.button(
-                        rec.provider_label,
-                        key=btn_key,
-                        disabled=not _provider_ready(rec.provider, keys),
-                        width="stretch",
-                        help=rec.model,
-                    ):
-                        apply_recommendation(rec)
-                        st.rerun()
+            if show_apply_button and modality.best_options():
+                st.markdown("**Apply a ⭐ best pick**")
+                best_opts = modality.best_options()
+                cols = st.columns(min(len(best_opts), 3))
+                for i, rec in enumerate(best_opts):
+                    with cols[i % len(cols)]:
+                        btn_key = f"{key_prefix}_apply_{modality_id}_{rec.provider}_{i}"
+                        if st.button(
+                            rec.provider_label,
+                            key=btn_key,
+                            disabled=not _provider_ready(rec.provider, keys),
+                            width="stretch",
+                            help=rec.model,
+                        ):
+                            apply_recommendation(rec)
+                            st.rerun()
 
 
 def render_sidebar_modality_picker(keys: ProviderKeys, current_provider: str) -> None:
@@ -102,4 +104,5 @@ def render_sidebar_modality_picker(keys: ProviderKeys, current_provider: str) ->
         current_provider,
         key_prefix="sidebar",
         show_apply_button=False,
+        show_provider_table=False,
     )

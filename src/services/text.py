@@ -11,6 +11,7 @@ from src.providers import (
 )
 from src.services import anthropic as anthropic_svc
 from src.services import huggingface as hf_svc
+from src.services.errors import format_provider_error
 from src.services.gemini import generate_text as gemini_generate_text
 from src.types import GenerationOptions
 
@@ -35,12 +36,15 @@ def chat_completion(
 
     if provider == "groq":
         client = groq_client(keys)
-        response = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=options.temperature,
-            max_tokens=options.max_tokens,
-        )
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=options.temperature,
+                max_tokens=options.max_tokens,
+            )
+        except Exception as exc:
+            raise ValueError(format_provider_error("groq", exc)) from exc
         text = response.choices[0].message.content or ""
         return text, model
 

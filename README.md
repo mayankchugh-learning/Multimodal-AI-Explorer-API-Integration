@@ -8,7 +8,7 @@ Each tab and the sidebar include **Learn: Logic, LangChain & Architecture**:
 
 - **Implementation logic** — step-by-step pipeline matching this codebase
 - **LangChain code** — copy-ready snippet for the selected provider + modality (download as `.py`)
-- **Architecture** — Mermaid diagrams (modality flow, full app, LCEL)
+- **Architecture** — **rendered visual diagrams** (Mermaid in browser) + ASCII diagrams for slides + Mermaid source to copy
 
 Optional install for running snippets:
 
